@@ -1,0 +1,100 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="col-sm-3">
+    <div class="left-sidebar">
+        <h2>Account</h2>
+        <div class="panel-group category-products" id="accordian">
+            <!--category-productsr-->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title"><a href="{% url 'account' %}">account</a></h4>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title"><a href="{% url 'my_product' %}">My product</a></h4>
+                </div>
+            </div>
+        </div>
+        <!--/category-products-->
+    </div>
+</div>
+<div class="col-sm-9">
+    <div class="blog-post-area">
+        <h2 class="title text-center">ADD PRODUCT</h2>
+        <div class="signup-form">
+            <!--sign up form-->
+            <h2>New Product</h2>
+            <form id="productAjax" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="Name" />
+                <p id="error-name" style="color: red"></p>
+                <input type="number" name="price" placeholder="Price" />
+                <p id="error-price" style="color: red"></p>
+                <select name="category">
+                    <option value="" disabled selected hidden>-- Please choose category --</option>
+                    {% for c in category %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+                <select name="brand">
+                    <option value="" disabled selected hidden>-- Please choose brand --</option>
+                    {% for b in brand %}
+                    <option value="{{ b.id }}">{{ b.name }}</option>
+                    {% endfor %}
+                </select>
+                <!-- Select status -->
+                <select name="status" id="status">
+                    <option value="0" selected>New</option>
+                    <option value="1">Sale</option>
+                </select>
+                <div id="salePrice" style="display: none; margin-top: 8px; width: 50%">
+                    <input type="number" name="sale" placeholder="% giảm giá" />
+                </div>
+                <input type="text" name="company" placeholder="Company profile" />
+                <textarea name="detail" placeholder="Detail"></textarea>
+                <input type="file" name="images" multiple />
+                <p id="error-images" style="color: red"></p>
+                <button type="submit" class="btn btn-default">ADD</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#status').change(function () {
+            if ($(this).val() === '1') {
+                $('#salePrice').show(); // nếu chọn Sale
+            } else {
+                $('#salePrice').hide(); // nếu chọn New
+            }
+        });
+
+        $('form#productAjax').submit(function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            $.ajax({
+                url: "{% url 'add_product' %}",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                success: function (res) {
+                    console.log(res);
+                    alert('Them san pham thanh cong');
+                    window.location.href = res.redirect_url;
+                },
+                error: function (xhr) {
+                    const errors = xhr.responseJSON?.errors || {};
+                    $('#error-name').text(errors.name || '');
+                    $('#error-price').text(errors.price || '');
+                    $('#error-images').text(errors.images || '');
+                    console.log(errors);
+                },
+            });
+        });
+    });
+</script>
+{% endblock %}

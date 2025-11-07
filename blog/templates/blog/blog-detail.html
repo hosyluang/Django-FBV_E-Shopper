@@ -1,0 +1,265 @@
+{% extends 'base.html' %} {% load static %} {% csrf_token %} {% block content %}
+<div class="col-sm-9">
+    <div class="blog-post-area">
+        <h2 class="title text-center">Latest From our Blog</h2>
+        <div class="single-blog-post">
+            <h3>{{ blog.title }}</h3>
+            <div class="post-meta">
+                <ul>
+                    <li>
+                        <i class="fa fa-user"></i>
+                        {{ blog.author }}
+                    </li>
+                    <li>
+                        <i class="fa fa-clock-o"></i>
+                        {{ blog.created_at|time:"H:i" }}
+                    </li>
+                    <li>
+                        <i class="fa fa-calendar"></i>
+                        {{ blog.created_at|date:"M d, Y" }}
+                    </li>
+                </ul>
+            </div>
+            <a href="">
+                <img src="{{ blog.image.url }}" alt="" />
+            </a>
+            <p>{{ blog.description }}</p>
+            <br />
+            <p>{{ blog.content|safe }}</p>
+            <div class="pager-area">
+                <ul class="pager pull-right">
+                    {% if prev_blog %}
+                    <li><a href="{% url 'blog_detail' prev_blog.id %}">Pre</a></li>
+                    {% endif %} {% if next_blog %}
+                    <li><a href="{% url 'blog_detail' next_blog.id %}">Next</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--/blog-post-area-->
+
+    <div class="rating-area">
+        <ul class="ratings rate">
+            <li class="rate-this">Rate this item:</li>
+            <li class="vote">
+                <i class="star_1 ratings_stars"><input value="1" type="hidden" /></i>
+                <i class="star_2 ratings_stars"><input value="2" type="hidden" /></i>
+                <i class="star_3 ratings_stars"><input value="3" type="hidden" /></i>
+                <i class="star_4 ratings_stars"><input value="4" type="hidden" /></i>
+                <i class="star_5 ratings_stars"><input value="5" type="hidden" /></i>
+            </li>
+            <li class="color">{{ avg_rate|floatformat:1 }} sao</li>
+        </ul>
+        <ul class="tag">
+            <li>TAG:</li>
+            <li>
+                <a class="color" href="">
+                    Pink
+                    <span>/</span>
+                </a>
+            </li>
+            <li>
+                <a class="color" href="">
+                    T-Shirt
+                    <span>/</span>
+                </a>
+            </li>
+            <li><a class="color" href="">Girls</a></li>
+        </ul>
+    </div>
+    <!--/rating-area-->
+
+    <div class="socials-share">
+        <a href=""><img src="images/blog/socials.png" alt="" /></a>
+    </div>
+    <!--/socials-share-->
+
+    <!-- <div class="media commnets">
+						<a class="pull-left" href="#">
+							<img class="media-object" src="images/blog/man-one.jpg" alt="">
+						</a>
+						<div class="media-body">
+							<h4 class="media-heading">Annie Davis</h4>
+							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.  Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+							<div class="blog-socials">
+								<ul>
+									<li><a href=""><i class="fa fa-facebook"></i></a></li>
+									<li><a href=""><i class="fa fa-twitter"></i></a></li>
+									<li><a href=""><i class="fa fa-dribbble"></i></a></li>
+									<li><a href=""><i class="fa fa-google-plus"></i></a></li>
+								</ul>
+								<a class="btn btn-primary" href="">Other Posts</a>
+							</div>
+						</div>
+					</div> -->
+
+    <!--Comments-->
+    <div class="response-area">
+        <h2>{{ comments.count }} RESPONSES</h2>
+        <ul class="media-list">
+            <!-- <li class="media">
+                <a class="pull-left" href="#">
+                    <img class="media-object" src="images/blog/man-two.jpg" alt="" />
+                </a>
+                <div class="media-body">
+                    <ul class="sinlge-post-meta">
+                        <li>
+                            <i class="fa fa-user"></i>
+                            Janis Gallagher
+                        </li>
+                        <li>
+                            <i class="fa fa-clock-o"></i>
+                            1:33 pm
+                        </li>
+                        <li>
+                            <i class="fa fa-calendar"></i>
+                            DEC 5, 2013
+                        </li>
+                    </ul>
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                        laboris nisi ut aliquip ex ea commodo consequat.
+                    </p>
+                    <a class="btn btn-primary" href="">
+                        <i class="fa fa-reply"></i>
+                        Replay
+                    </a>
+                </div>
+            </li>
+            <li class="media second-media">
+                <a class="pull-left" href="#">
+                    <img class="media-object" src="images/blog/man-three.jpg" alt="" />
+                </a>
+                <div class="media-body">
+                    <ul class="sinlge-post-meta">
+                        <li>
+                            <i class="fa fa-user"></i>
+                            Janis Gallagher
+                        </li>
+                        <li>
+                            <i class="fa fa-clock-o"></i>
+                            1:33 pm
+                        </li>
+                        <li>
+                            <i class="fa fa-calendar"></i>
+                            DEC 5, 2013
+                        </li>
+                    </ul>
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                        laboris nisi ut aliquip ex ea commodo consequat.
+                    </p>
+                    <a class="btn btn-primary" href="">
+                        <i class="fa fa-reply"></i>
+                        Replay
+                    </a>
+                </div>
+            </li>-->
+            {% for parent in comments %} {% if parent.level == 0 %}
+            <li class="media" id="comment-{{ parent.id }}">
+                <a class="pull-left" href="#">
+                    {% if parent.avatar_user %}
+                    <img class="media-object" src="{{ parent.avatar_user.url }}" width="80px" />
+                    {% endif %}
+                </a>
+                <div class="media-body">
+                    <ul class="sinlge-post-meta">
+                        <li>
+                            <i class="fa fa-user"></i>
+                            {{ parent.name_user }}
+                        </li>
+                        <li>
+                            <i class="fa fa-clock-o"></i>
+                            {{ parent.created_at|time:"H:i" }}
+                        </li>
+                        <li>
+                            <i class="fa fa-calendar"></i>
+                            {{ parent.created_at|date:"M d, Y" }}
+                        </li>
+                    </ul>
+                    <p>{{ parent.cmt }}</p>
+                    <a class="btn btn-primary reply-btn" data-id="{{ parent.id }}">
+                        <i class="fa fa-reply"></i>
+                        Reply
+                    </a>
+                    <!-- Form reply -->
+                    <div class="reply-form" id="reply-form-{{ parent.id }}" style="display: none">
+                        <textarea class="reply-text" rows="2" placeholder="Nhập bình luận..."></textarea>
+                        <button class="btn btn-success submit-reply" data-id="{{ parent.id }}">Gửi</button>
+                    </div>
+                </div>
+            </li>
+            {% endif %} {% for child in comments %} {% if child.level == parent.id %}
+            <li class="media second-media" id="comment-{{ child.id }}">
+                <a class="pull-left" href="#">
+                    {% if child.avatar_user %}
+                    <img class="media-object" src="{{ child.avatar_user.url }}" width="80px" />
+                    {% endif %}
+                </a>
+                <div class="media-body">
+                    <ul class="sinlge-post-meta">
+                        <li>
+                            <i class="fa fa-user"></i>
+                            {{ child.name_user }}
+                        </li>
+                        <li>
+                            <i class="fa fa-clock-o"></i>
+                            {{ child.created_at|time:"H:i" }}
+                        </li>
+                        <li>
+                            <i class="fa fa-calendar"></i>
+                            {{ child.created_at|date:"M d, Y" }}
+                        </li>
+                    </ul>
+                    <p>{{ child.cmt }}</p>
+                    <a class="btn btn-primary reply-btn" data-id="{{ child.id }}">
+                        <i class="fa fa-reply"></i>
+                        Reply
+                    </a>
+                    <!-- Form reply -->
+                    <div class="reply-form" id="reply-form-{{ child.id }}" style="display: none">
+                        <textarea class="reply-text" rows="2" placeholder="Nhập bình luận..."></textarea>
+                        <button class="btn btn-success submit-reply" data-id="{{ child.id }}">Gửi</button>
+                    </div>
+                </div>
+            </li>
+            {% endif %} {% endfor %} {% endfor %}
+        </ul>
+    </div>
+    <!--/Response-area-->
+    <div class="replay-box">
+        <div class="row">
+            <div class="col-sm-12">
+                <h2>Leave a reply</h2>
+
+                <div class="text-area">
+                    <div class="blank-arrow">
+                        <label>Your Comment</label>
+                    </div>
+                    <span>*</span>
+                    <textarea id="comment_text" name="message" rows="11"></textarea>
+                    <button id="post_comment" class="btn btn-primary">post comment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/Repaly Box-->
+</div>
+{% endblock %} 
+{% block script %}
+<script>
+    const blogID = '{{ blog.id }}';
+    const cmtUrl = "{% url 'blog_cmt' %}";
+    const rateUrl = "{% url 'blog_rate' %}";
+    const loginUrl = "{% url 'login' %}";
+    const avgRate = parseFloat('{{ avg_rate|default:0 }}');
+    const userRate = parseFloat('{{ user_rate|default:0 }}');
+    const activeRate = Math.round(avgRate);
+    const isAuthenticated = "{{ user.is_authenticated|yesno:'true,false' }}";
+    const csrftoken = '{{ csrf_token }}';
+</script>
+<script src="{% static 'blog/js/blog-detail.js' %}"></script>
+{% endblock %}

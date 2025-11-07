@@ -1,0 +1,99 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div class="col-sm-9">
+    <div class="blog-post-area">
+        <h2 class="title text-center">Latest From our Blog</h2>
+        <!-- <div class="single-blog-post">
+            <h3>Girls Pink T Shirt arrived in store</h3>
+            <div class="post-meta">
+                <ul>
+                    <li>
+                        <i class="fa fa-user"></i>
+                        Mac Doe
+                    </li>
+                    <li>
+                        <i class="fa fa-clock-o"></i>
+                        1:33 pm
+                    </li>
+                    <li>
+                        <i class="fa fa-calendar"></i>
+                        DEC 5, 2013
+                    </li>
+                </ul>
+                <span>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star-half-o"></i>
+                </span>
+            </div>
+            <a href="">
+                <img src="{% static 'global/images/blog/blog-one.jpg' %}" alt="" />
+            </a>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
+                ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+                fugiat nulla pariatur.
+            </p>
+            <a class="btn btn-primary" href="">Read More</a>
+        </div> -->
+        <!-- LIST BLOG -->
+        {% for blog in page_obj %}
+        <div class="single-blog-post">
+            <h3>{{ blog.title }}</h3>
+            <div class="post-meta">
+                <ul>
+                    <li>
+                        <i class="fa fa-user"></i>
+                        {{ blog.author}}
+                    </li>
+                    <li>
+                        <i class="fa fa-clock-o"></i>
+                        {{ blog.created_at|time:"H:i" }}
+                    </li>
+                    <li>
+                        <i class="fa fa-calendar"></i>
+                        {{ blog.created_at|date:"M d, Y" }}
+                    </li>
+                </ul>
+                <span>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star-half-o"></i>
+                </span>
+            </div>
+            <a href="">
+                <img src="{{ blog.image.url }}" alt="{{ blog.title }}"/>
+            </a>
+            <p>{{ blog.description }}</p>
+            <a class="btn btn-primary" href="{% url 'blog_detail' blog.id %}">Read More</a>
+        </div>
+        {% empty %}
+        <p>Khong co bai viet nao.</p>
+        {% endfor %}
+        <!-- PHAN TRANG -->
+        <div class="pagination-area">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li><a href="?page=1">First</a></li>
+                <li><a href="?page={{ page_obj.previous_page_number }}">«</a></li>
+                {% endif %} 
+                {% for num in paginator.page_range %} 
+                    {% if page_obj.number == num %}
+                    <li><a class="active">{{ num }}</a></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li><a href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %} 
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li><a href="?page={{ page_obj.next_page_number }}">»</a></li>
+                <li><a href="?page={{ paginator.num_pages }}">Last</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

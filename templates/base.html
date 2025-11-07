@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Document</title>
+        <link rel="stylesheet" href="{% static 'global/css/bootstrap.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'global/css/font-awesome.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'global/css/prettyPhoto.css' %}" />
+        <link rel="stylesheet" href="{% static 'global/css/price-range.css' %}" />
+        <link rel="stylesheet" href="{% static 'global/css/animate.css' %}" />
+        <link rel="stylesheet" href="{% static 'global/css/main.css' %}" />
+        <link rel="stylesheet" href="{% static 'global/css/responsive.css' %}" />
+        <link rel="stylesheet" href="{% static 'global/css/rate.css' %}" />
+        <!--[if lt IE 9]>
+            <script src="js/html5shiv.js"></script>
+            <script src="js/respond.min.js"></script>
+        <![endif]-->
+        <link rel="shortcut icon" href="{% static 'global/images/ico/favicon.ico' %}" />
+
+        <link
+            rel="apple-touch-icon-precomposed"
+            sizes="144x144"
+            href="{% static 'global/images/ico/apple-touch-icon-144-precomposed.png' %}"
+        />
+
+        <link
+            rel="apple-touch-icon-precomposed"
+            sizes="114x114"
+            href="{% static 'global/images/ico/apple-touch-icon-114-precomposed.png' %}"
+        />
+
+        <link
+            rel="apple-touch-icon-precomposed"
+            sizes="72x72"
+            href="{% static 'global/images/ico/apple-touch-icon-72-precomposed.png' %}"
+        />
+
+        <link
+            rel="apple-touch-icon-precomposed"
+            href="{% static 'global/images/ico/apple-touch-icon-57-precomposed.png' %}"
+        />
+    </head>
+    <body>
+        {% include 'header.html' %}
+        <section>
+            <div class="container">
+                <div class="row">
+                    {% include 'menuLeft.html' %} {% block content %}
+                    <!-- Noi dung mac dinh (neuco) -->
+                    {% endblock %}
+                </div>
+            </div>
+        </section>
+        {% include 'footer.html' %}
+        <!-- Goi js vao day (neuco) -->
+        <script src="{% static 'global/js/jquery.js' %}"></script>
+        <script src="{% static 'global/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'global/js/jquery.scrollUp.min.js' %}"></script>
+        <script src="{% static 'global/js/price-range.js' %}"></script>
+        <script src="{% static 'global/js/jquery.prettyPhoto.js' %}"></script>
+        <script src="{% static 'global/js/main.js' %}"></script>
+        {% block script %} {% endblock %}
+    </body>
+</html>
