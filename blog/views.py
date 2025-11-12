@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
@@ -7,21 +7,27 @@ from django.utils import timezone
 from django.db.models import Avg
 from .models import Blog, Rate, Comment
 
+
 def blog_list(request):
-    blog_list = Blog.objects.all().order_by('created_at')
+    blog_list = Blog.objects.all().order_by("created_at")
     # 3 bai trong 1 page
     paginator = Paginator(blog_list, 3)
     # Lay so page tu url
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    return render(request, 'blog/blog.html', {'page_obj': page_obj, 'paginator': paginator})
+    return render(
+        request, "blog/blog.html", {"page_obj": page_obj, "paginator": paginator}
+    )
+
 
 def blog_detail(request, pk):
     blog = get_object_or_404(Blog, pk=pk)
-    next_blog = Blog.objects.filter(id__gt=blog.id).order_by('id').first()
-    prev_blog = Blog.objects.filter(id__lt=blog.id).order_by('-id').first()
+    next_blog = Blog.objects.filter(id__gt=blog.id).order_by("id").first()
+    prev_blog = Blog.objects.filter(id__lt=blog.id).order_by("-id").first()
     # tinh diem trung binh
-    avg_rate = Rate.objects.filter(id_blog=blog).aggregate(Avg('rate'))['rate__avg'] or 0
+    avg_rate = (
+        Rate.objects.filter(id_blog=blog).aggregate(Avg("rate"))["rate__avg"] or 0
+    )
     # lay rate cua user hien tai de hien thi (neu co)
     user_rate = 0
     if request.user.is_authenticated:
@@ -29,36 +35,43 @@ def blog_detail(request, pk):
         if rate_obj:
             user_rate = rate_obj.rate
     # Lay comment trong data de hien thi
-    comments = Comment.objects.filter(id_blog=blog).order_by('created_at')
+    comments = Comment.objects.filter(id_blog=blog).order_by("created_at")
 
     context = {
-        'blog':blog, 
-        'next_blog':next_blog, 
-        'prev_blog':prev_blog, 
-        'avg_rate': round(avg_rate, 1), 
-        'user_rate': user_rate, 
-        'comments': comments, 
+        "blog": blog,
+        "next_blog": next_blog,
+        "prev_blog": prev_blog,
+        "avg_rate": round(avg_rate, 1),
+        "user_rate": user_rate,
+        "comments": comments,
     }
-    return render(request, 'blog/blog-detail.html', context)
+    return render(request, "blog/blog-detail.html", context)
+
 
 @csrf_exempt
 def blog_rate(request):
     # neu chua login thi yeu cau login
     if not request.user.is_authenticated:
-        return JsonResponse({'login_required': True})
-    if request.method == 'POST':
-        rate = request.POST.get('rate')
-        id_blog = request.POST.get('id_blog')
+        return JsonResponse({"login_required": True})
+    if request.method == "POST":
+        rate = request.POST.get("rate")
+        id_blog = request.POST.get("id_blog")
         try:
             blog = Blog.objects.get(id=id_blog)
             Rate.objects.filter(id_blog=blog, id_user=request.user).delete()
             Rate.objects.create(id_blog=blog, id_user=request.user, rate=rate)
             # tinh trung binh
-            avg_rate = Rate.objects.filter(id_blog=blog).aggregate(Avg('rate'))['rate__avg'] or 0
-            return JsonResponse({'success': True, 'avg_rate': round(avg_rate, 1), 'user_rate': rate})
+            avg_rate = (
+                Rate.objects.filter(id_blog=blog).aggregate(Avg("rate"))["rate__avg"]
+                or 0
+            )
+            return JsonResponse(
+                {"success": True, "avg_rate": round(avg_rate, 1), "user_rate": rate}
+            )
         except Blog.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Blog not found'})
-    return JsonResponse({'success': False, 'error': 'Invalid request'})
+            return JsonResponse({"success": False, "error": "Blog not found"})
+    return JsonResponse({"success": False, "error": "Invalid request"})
+
 
 # @csrf_exempt
 @login_required
@@ -87,33 +100,35 @@ def blog_cmt(request):
     #             return JsonResponse({'success': False, 'error': 'cmt not found'})
     #     return JsonResponse({'success': False, 'error': '? user'})
     # return JsonResponse({'success': False, 'error': 'Invalid request'})
-    if request.method == 'POST':
-        cmt = request.POST.get('cmt')
-        id_blog = request.POST.get('id_blog')
-        id_parent = request.POST.get('id_parent')
+    if request.method == "POST":
+        cmt = request.POST.get("cmt")
+        id_blog = request.POST.get("id_blog")
+        id_parent = request.POST.get("id_parent")
 
         try:
             blog = Blog.objects.get(pk=id_blog)
             user = request.user
             new_comment = Comment.objects.create(
-                cmt = cmt,
-                id_user = user,
-                id_blog = blog,
-                name_user = user.username,
-                created_at = timezone.now(),
-                level = id_parent if id_parent else 0,
-                avatar_user = user.avatar if user.avatar else None,
+                cmt=cmt,
+                id_user=user,
+                id_blog=blog,
+                name_user=user.username,
+                created_at=timezone.now(),
+                level=id_parent if id_parent else 0,
+                avatar_user=user.avatar if user.avatar else None,
             )
             data = {
-                'id': new_comment.id,
-                'cmt': new_comment.cmt,
-                'level': new_comment.level,
-                'name_user': new_comment.name_user,
-                'created_at': new_comment.created_at.strftime('%Y-%m-%d %H:%M'),
-                'avatar_user': new_comment.avatar_user.url if new_comment.avatar_user else '',
+                "id": new_comment.id,
+                "cmt": new_comment.cmt,
+                "level": new_comment.level,
+                "name_user": new_comment.name_user,
+                "created_at": new_comment.created_at.strftime("%Y-%m-%d %H:%M"),
+                "avatar_user": new_comment.avatar_user.url
+                if new_comment.avatar_user
+                else "",
             }
             # tra json sang lai js
-            return JsonResponse({'success': True, 'data': data})
+            return JsonResponse({"success": True, "data": data})
         except Blog.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Blog not found'})
-    return JsonResponse({'success': False, 'error': 'Invalid request'})
+            return JsonResponse({"success": False, "error": "Blog not found"})
+    return JsonResponse({"success": False, "error": "Invalid request"})

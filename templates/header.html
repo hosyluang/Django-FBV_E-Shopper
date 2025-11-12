@@ -159,7 +159,7 @@
                     </div>
                     <div class="mainmenu pull-left">
                         <ul class="nav navbar-nav collapse navbar-collapse">
-                            <li><a href="#" class="active">Home</a></li>
+                            <li><a href="{% url 'home' %}" class="active">Home</a></li>
                             <li class="dropdown">
                                 <a href="#">
                                     Shop
@@ -176,7 +176,7 @@
                                 </ul>
                             </li>
                             <li class="dropdown">
-                                <a href="#">
+                                <a href="{% url 'blog_list' %}">
                                     Blog
                                     <i class="fa fa-angle-down"></i>
                                 </a>

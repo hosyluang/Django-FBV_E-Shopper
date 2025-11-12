@@ -20,26 +20,30 @@
 </div>
 <div class="col-sm-9">
     <div class="blog-post-area">
-        <h2 class="title text-center">ADD PRODUCT</h2>
+        <h2 class="title text-center">EDIT PRODUCT</h2>
         <div class="signup-form">
             <!--sign up form-->
-            <h2>New Product</h2>
+            <h2>Edit Product</h2>
             <form id="productAjax" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                <input type="text" name="name" placeholder="Name" />
+                <input type="text" name="name" placeholder="Name" value="{{ product.name }}" />
                 <p id="error-name" style="color: red"></p>
-                <input type="number" name="price" placeholder="Price" />
+                <input type="number" name="price" placeholder="Price" value="{{ product.price }}" />
                 <p id="error-price" style="color: red"></p>
                 <select name="category">
-                    <option value="" disabled selected hidden>-- Please choose category --</option>
+                    <option value="" disabled hidden>-- Please choose category --</option>
                     {% for c in category %}
-                    <option value="{{ c.id }}">{{ c.name }}</option>
+                    <option value="{{ c.id }}" {% if c.id="" ="product.category.id" %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
                     {% endfor %}
                 </select>
                 <select name="brand">
-                    <option value="" disabled selected hidden>-- Please choose brand --</option>
+                    <option value="" disabled hidden>-- Please choose brand --</option>
                     {% for b in brand %}
-                    <option value="{{ b.id }}">{{ b.name }}</option>
+                    <option value="{{ b.id }}" {% if b.id="" ="product.brand.id" %}selected{% endif%}>
+                        {{ b.name }}
+                    </option>
                     {% endfor %}
                 </select>
                 <!-- Select status -->
@@ -50,11 +54,24 @@
                 <div id="salePrice" style="display: none; margin-top: 8px; width: 50%">
                     <input type="number" name="sale" placeholder="% giảm giá" />
                 </div>
-                <input type="text" name="company" placeholder="Company" />
-                <textarea name="detail" placeholder="Detail"></textarea>
-                <input type="file" name="images" multiple />
+                <input type="text" name="company" placeholder="Company" value="{{ product.company }}" />
+                <textarea name="detail" placeholder="Detail">{{ product.detail }}</textarea>
+                <input type="file" name="images" value="{{ product.images }}" multiple />
+                <div class="old-images" style="margin-bottom: 15px">
+                    {% for img in product.images %}
+                    <div class="image-box" style="display: inline-block; text-align: center; margin-right: 10px">
+                        <img
+                            src="/media/{{ img }}"
+                            width="100"
+                            height="100"
+                            style="object-fit: cover; display: block; margin-bottom: 5px"
+                        />
+                        <input type="checkbox" name="hinhxoa[]" value="{{ img }}" class="get-checkbox" />
+                    </div>
+                    {% endfor %}
+                </div>
                 <p id="error-images" style="color: red"></p>
-                <button type="submit" class="btn btn-default">ADD</button>
+                <button type="submit" class="btn btn-default">SUBMIT</button>
             </form>
         </div>
     </div>
@@ -63,27 +80,22 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        $('#status').change(function () {
-            if ($(this).val() === '1') {
-                $('#salePrice').show(); // nếu chọn Sale
-            } else {
-                $('#salePrice').hide(); // nếu chọn New
-            }
+        $('.get-checkbox').click(function () {
+            console.log($(this).val());
         });
-
         $('form#productAjax').submit(function (e) {
             e.preventDefault();
             const formData = new FormData(this);
+
             $.ajax({
-                url: "{% url 'add_product' %}",
-                type: 'POST',
+                url: window.location.pathname,
+                method: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
-                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
                 success: function (res) {
                     console.log(res);
-                    alert('Them san pham thanh cong');
+                    alert('Cap nhat thanh cong');
                     window.location.href = res.redirect_url;
                 },
                 error: function (xhr) {

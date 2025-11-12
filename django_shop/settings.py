@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "country",
     "blog",
     "product",
+    "core",
 ]
 
 MIDDLEWARE = [

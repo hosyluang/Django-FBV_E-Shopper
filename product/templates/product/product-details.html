@@ -1,4 +1,5 @@
 {% extends "base.html" %} {% load static %} {% block content %}
+{% include 'menuLeft.html' %}
 <div class="col-sm-9 padding-right">
     <div class="product-details">
         <!--product-details-->
@@ -14,9 +15,9 @@
                 <div class="carousel-inner">
                     <div class="item active">
                         {% for img in product.images %}
-                            <a href="javascript:void(0)" class="thumb">
-                                <img src="/media/{{ img }}" style="width:65px; height:65px;"/>
-                            </a>
+                        <a href="javascript:void(0)" class="thumb">
+                            <img src="/media/{{ img }}" style="width:65px; height:65px;"/>
+                        </a>
                         {% endfor %} 
                     </div>
                 </div>
@@ -427,13 +428,6 @@
             let newSrc = $(this).attr('src');
             $('#main-image').attr('src', newSrc);
             $('#zoom-link').attr('href', newSrc);
-        });
-
-        $('.left.item-control').click(function(){
-            $('#similar-product').carousel('prev');
-        });
-        $('.right.item-control').click(function(){
-            $('#similar-product').carousel('next');
         });
     });
 </script>
