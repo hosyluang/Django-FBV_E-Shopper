@@ -1,95 +1,103 @@
-{% extends "base.html" %} {% load static %} {% block content %}
-<div class="col-sm-3">
-    <div class="left-sidebar">
-        <h2>Account</h2>
-        <div class="panel-group category-products" id="accordian">
-            <!--category-productsr-->
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title"><a href="{% url 'account' %}">account</a></h4>
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <div class="col-sm-3">
+        <div class="left-sidebar">
+            <h2>Account</h2>
+            <div class="panel-group category-products" id="accordian">
+                <!--category-productsr-->
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a href="{% url 'account' %}">account</a>
+                        </h4>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a href="{% url 'my_product' %}">My product</a>
+                        </h4>
+                    </div>
                 </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title"><a href="{% url 'my_product' %}">My product</a></h4>
-                </div>
-            </div>
+            <!--/category-products-->
         </div>
-        <!--/category-products-->
     </div>
-</div>
-<div class="col-sm-9">
-    <div class="table-responsive cart_info">
-        <table class="table table-condensed">
-            <thead>
-                <tr class="cart_menu btn-primary">
-                    <td class="id">id</td>
-                    <td class="image">image</td>
-                    <td class="description">name</td>
-                    <td class="price">price</td>
-                    <td class="total">action</td>
-                </tr>
-            </thead>
-            <tbody style="border: 1px solid #ccc">
-                {% for product in products %}
-                <tr>
-                    <td class="cart_id">
-                        <h4><a href="{% url 'product_detail' product.id %}">{{ product.id }}</a></h4>
-                    </td>
-                    <td class="cart_product">
-                        {% if product.images %}
-                        <a href="{% url 'product_detail' product.id %}">
-                            <img src="/media/{{ product.images.0 }}" alt="" width="80px" height="80px" />
-                        </a>
-                        {% else %}
-                        <span>No image</span>
-                        {% endif %}
-                    </td>
-                    <td class="cart_description">
-                        <h4><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></h4>
-                    </td>
-                    <td class="cart_price">
-                        <p>${{ product.price }}</p>
-                    </td>
-                    <td class="cart_total">
-                        <a href="{% url 'edit_product' product.id %}" class="btn btn-default">EDIT</a>
-                        <a
-                            href="{% url 'delete_product' product.id %}"
-                            onclick="return confirm('Ban co muon xoa khong?')"
-                            class="btn btn-default btn-delete"
-                            data-id="{{ product.id }}"
-                        >
-                            DELETE
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <a href="{% url 'add_product' %}" class="btn btn-default btn-primary">ADD NEW</a>
+    <div class="col-sm-9">
+        <div class="table-responsive cart_info">
+            <table class="table table-condensed">
+                <thead>
+                    <tr class="cart_menu btn-primary">
+                        <td class="id">id</td>
+                        <td class="image">image</td>
+                        <td class="description">name</td>
+                        <td class="price">price</td>
+                        <td class="total">action</td>
+                    </tr>
+                </thead>
+                <tbody style="border: 1px solid #ccc">
+                    {% for product in products %}
+                        <tr>
+                            <td class="cart_id">
+                                <h4>
+                                    <a href="{% url 'product_detail' product.id %}">{{ product.id }}</a>
+                                </h4>
+                            </td>
+                            <td class="cart_product">
+                                {% if product.images %}
+                                    <a href="{% url 'product_detail' product.id %}">
+                                        <img src="/media/{{ product.images.0 }}" alt="" width="80px" height="80px" />
+                                    </a>
+                                {% else %}
+                                    <span>No image</span>
+                                {% endif %}
+                            </td>
+                            <td class="cart_description">
+                                <h4>
+                                    <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+                                </h4>
+                            </td>
+                            <td class="cart_price">
+                                <p>${{ product.price }}</p>
+                            </td>
+                            <td class="cart_total">
+                                <a href="{% url 'edit_product' product.id %}" class="btn btn-default">EDIT</a>
+                                <a href="{% url 'delete_product' product.id %}"
+                                   onclick="return confirm('Ban co muon xoa khong?')"
+                                   class="btn btn-default btn-delete"
+                                   data-id="{{ product.id }}">DELETE</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{% url 'add_product' %}" class="btn btn-default btn-primary">ADD NEW</a>
+        </div>
     </div>
-</div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('.btn-delete').click(function(e) {
-            e.preventDefault();
-            const tr = $(this).closest('tr')
-            const productId = $(this).data('id')
-            $.ajax({
-                url: "{% url 'delete_product' 0 %}".replace("0", productId),
-                type: "POST",
-                headers: {"X-CSRFToken": "{{ csrf_token }}"},
-                success: function (response) {
-                    if (response.success) {
-                        $(tr).remove();
-                    }
-                },
-                error: function (xhr) {
-                    alert("Xóa thất bại!");
-                },
-            });
-        })
-    });
-</script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.btn-delete').click(function(e) {
+                e.preventDefault();
+                const tr = $(this).closest('tr')
+                const productId = $(this).data('id')
+                $.ajax({
+                    url: "{% url 'delete_product' 0 %}".replace("0", productId),
+                    type: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $(tr).remove();
+                        }
+                    },
+                    error: function(xhr) {
+                        alert("Xóa thất bại!");
+                    },
+                });
+            })
+        });
+    </script>
 {% endblock %}

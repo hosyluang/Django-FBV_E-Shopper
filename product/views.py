@@ -153,7 +153,14 @@ def edit_product(request, pk):
             img_path = os.path.join(settings.MEDIA_ROOT, img)
             if os.path.exists(img_path):
                 os.remove(img_path)
-
+            # Xóa luôn các thumbnail 100_, 200_
+            base_name = os.path.basename(img)  # vd: abc.jpg
+            name, ext = os.path.splitext(base_name)
+            folder = os.path.dirname(img_path)
+            for size in [100, 200]:
+                thumb_path = os.path.join(folder, f"{size}_{name}{ext}")
+                if os.path.exists(thumb_path):
+                    os.remove(thumb_path)
         # Save file
         save_folder = os.path.join(settings.MEDIA_ROOT, "products")
         os.makedirs(save_folder, exist_ok=True)
@@ -202,3 +209,101 @@ def delete_product(request, pk):
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk, user=request.user)
     return render(request, "product/product-details.html", {"product": product})
+
+
+@login_required
+def cart(request):
+    cart = request.session.get("cart", {})
+    total_all = sum(item["qty"] * float(item["price"]) for item in cart.values())
+    return render(request, "product/cart.html", {"cart": cart, "totalAll": total_all})
+
+
+@login_required
+def add_to_cart(request):
+    if request.method == "POST":
+        product_id = str(request.POST.get("product_id"))
+        product = Product.objects.get(id=product_id)
+        cart = request.session.get("cart", {})
+
+        if product_id in cart:
+            cart[product_id]["qty"] += 1
+            cart[product_id]["total"] = cart[product_id]["qty"] * float(
+                cart[product_id]["price"]
+            )
+        else:
+            cart[product_id] = {
+                "id": product.id,
+                "name": product.name,
+                "image": product.images[0],
+                "price": float(product.price),
+                "qty": 1,
+                "total": float(product.price),
+            }
+        request.session["cart"] = cart
+        cart_count = sum(item["qty"] for item in cart.values())
+        return JsonResponse(
+            {
+                "status": "success",
+                "cart": cart,
+                "cart_count": cart_count,
+            }
+        )
+    return JsonResponse({"status": "invalid"}, status=400)
+
+
+@login_required
+def update_cart(request):
+    if request.method == "POST":
+        product_id = str(request.POST.get("product_id"))
+        action = request.POST.get("action")
+        cart = request.session.get("cart", {})
+
+        if product_id not in cart:
+            return JsonResponse({"status": "error", "msg": "not found"})
+
+        qty = int(cart[product_id]["qty"])
+        if action == "up":
+            qty += 1
+        elif action == "down":
+            qty -= 1
+            if qty < 1:
+                qty = 1
+
+        price = float(cart[product_id]["price"])
+        total = qty * price
+
+        cart[product_id]["qty"] = qty
+        cart[product_id]["total"] = total
+        # Ghi lại session
+        request.session["cart"] = cart
+        total_all = sum(item["qty"] * float(item["price"]) for item in cart.values())
+        cart_count = sum(item["qty"] for item in cart.values())
+        return JsonResponse(
+            {
+                "status": "success",
+                "qty": qty,
+                "total": f"{total:.1f}",
+                "total_all": f"{total_all:.1f}",
+                "cart_count": cart_count,
+            }
+        )
+    return JsonResponse({"status": "error"})
+
+
+@login_required
+def delete_cart(request):
+    if request.method == "POST":
+        product_id = str(request.POST.get("product_id"))
+        cart = request.session.get("cart", {})
+        if product_id in cart:
+            del cart[product_id]
+        request.session["cart"] = cart
+        cart_count = sum(item["qty"] for item in cart.values())
+        return JsonResponse(
+            {
+                "status": "success",
+                "cart": cart,
+                "cart_count": cart_count,
+            }
+        )
+    return JsonResponse({"status": "error"})

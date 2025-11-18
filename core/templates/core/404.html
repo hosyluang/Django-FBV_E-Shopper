@@ -34,23 +34,27 @@
         <link rel="apple-touch-icon-precomposed"
               href="{% static 'global/images/ico/apple-touch-icon-57-precomposed.png' %}" />
     </head>
+    <!--/head-->
     <body>
-        {% include 'header.html' %}
-        <section>
-            <div class="container">
-                <div class="row">
-                    {% block content %}<!-- Noi dung mac dinh (neuco) -->{% endblock %}
-                </div>
+        <div class="container text-center">
+            <div class="logo-404">
+                <a href="index.html">
+                    <img src="{% static 'global/images/home/logo.png' %}" alt="" />
+                </a>
             </div>
-        </section>
-        {% include 'footer.html' %}
-        <!-- Goi js vao day (neuco) -->
-        <script src="{% static 'global/js/jquery.js' %}"></script>
-        <script src="{% static 'global/js/bootstrap.min.js' %}"></script>
-        <script src="{% static 'global/js/jquery.scrollUp.min.js' %}"></script>
-        <script src="{% static 'global/js/price-range.js' %}"></script>
-        <script src="{% static 'global/js/jquery.prettyPhoto.js' %}"></script>
-        <script src="{% static 'global/js/main.js' %}"></script>
-        {% block script %}{% endblock %}
+            <div class="content-404">
+                <img src="{% static 'global/images/404/404.png' %}"
+                     class="img-responsive"
+                     alt="" />
+                <h1>
+                    <b>OPPS!</b>
+                    We Couldn’t Find this Page
+                </h1>
+                <p>Uh... So it looks like you brock something. The page you are looking for has up and Vanished.</p>
+                <h2>
+                    <a href="{% url 'home' %}">Bring me back Home</a>
+                </h2>
+            </div>
+        </div>
     </body>
 </html>
