@@ -170,13 +170,13 @@
                                 <a href="{% url 'home' %}" class="nav-link active">Home</a>
                             </li>
                             <li class="dropdown">
-                                <a href="#" class="nav-link">
+                                <a href="{% url 'search_advanced' %}" class="nav-link">
                                     Shop
                                     <i class="fa fa-angle-down"></i>
                                 </a>
                                 <ul role="menu" class="sub-menu">
                                     <li>
-                                        <a href="#">Products</a>
+                                        <a href="{% url 'search_name' %}">Products</a>
                                     </li>
                                     <li>
                                         <a href="#">Product Details</a>
@@ -216,9 +216,12 @@
                     </div>
                 </div>
                 <div class="col-sm-3">
-                    <div class="search_box pull-right">
-                        <input type="text" placeholder="Search" />
-                    </div>
+                    <form action="{% url 'search_name' %}"
+                          method="get"
+                          class="search_box pull-right">
+                        <input type="text" name="q" placeholder="Search" />
+                        <button class="btn btn-default">Search</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -236,13 +239,19 @@
                 $(this).addClass('active');
             }
         });
+
         function updateCartQuantity() {
-            const cart = {{ request.session.cart|default:'{}'|safe }};
+            const cart = {
+                {
+                    request.session.cart |
+                        default: '{}' | safe
+                }
+            };
             let totalQty = 0;
             $.each(cart, function(key, item) {
                 totalQty += item.qty || 0;
             });
-            
+
             $('.total_qty').text('Cart ' + totalQty);
         }
         updateCartQuantity();

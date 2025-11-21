@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <section>
+        <div class="container">
+            <div class="row">
+                {% include "menuLeft.html" %}
+                <div class="col-sm-9 padding-right">
+                    <h2 class="title text-center">Advanced Search</h2>
+                    <div class="search-form-container"
+                         style="margin-bottom: 30px;
+                                background: #f0f0e9;
+                                padding: 20px;
+                                border: 1px solid #e6e4df">
+                        <form action="{% url 'search_advanced' %}" method="GET" class="form-inline">
+                            <div class="form-group" style="margin-right: 10px;">
+                                <input type="text"
+                                       name="name"
+                                       class="form-control"
+                                       placeholder="Name..."
+                                       value="{{ search_name }}">
+                            </div>
+                            <div class="form-group" style="margin-right: 10px;">
+                                <select name="price" class="form-control">
+                                    <option value="">Choose price</option>
+                                    <option value="0-50" {% if search_price == '0-50' %}selected{% endif %}>
+                                        < 50$
+                                    </option>
+                                    <option value="50-100" {% if search_price == '50-100' %}selected{% endif %}>50$ - 100$</option>
+                                    <option value="100-150" {% if search_price == '100-150' %}selected{% endif %}>100$ - 150$</option>
+                                    <option value="150-1000"
+                                            {% if search_price == '150-1000' %}selected{% endif %}>> 150$</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-right: 10px;">
+                                <select name="category" class="form-control">
+                                    <option value="">Category</option>
+                                    {% for cat in categories %}
+                                        <option value="{{ cat.id }}"
+                                                {% if search_category == cat.id %}selected{% endif %}>
+                                            {{ cat.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-right: 10px;">
+                                <select name="brand" class="form-control">
+                                    <option value="">Brand</option>
+                                    {% for br in brands %}
+                                        <option value="{{ br.id }}" {% if search_brand == br.id %}selected{% endif %}>{{ br.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-right: 10px;">
+                                <select name="status" class="form-control">
+                                    <option value="">Status</option>
+                                    <option value="0" {% if search_status == '0' %}selected{% endif %}>New</option>
+                                    <option value="1" {% if search_status == '1' %}selected{% endif %}>Sale</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-warning" style="margin-top: 0;">Search</button>
+                        </form>
+                    </div>
+                    <div class="features_items">
+                        <!--features_items-->
+                        <h2 class="title text-center">Features Items</h2>
+                        {% if products %}
+                            {% for product in products %}
+                                <div class="col-sm-4">
+                                    <div class="product-image-wrapper">
+                                        <div class="single-products">
+                                            <div class="productinfo text-center">
+                                                <img src="{{ MEDIA_URL }}{{ product.images.0 }}" alt="" />
+                                                <h2>${{ product.price }}</h2>
+                                                <p>{{ product.name }}</p>
+                                                <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                                            </div>
+                                            <div class="product-overlay">
+                                                <div class="overlay-content">
+                                                    <h2>${{ product.price }}</h2>
+                                                    <p>{{ product.name }}</p>
+                                                    <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="choose">
+                                            <ul class="nav nav-pills nav-justified">
+                                                <li>
+                                                    <a href=""><i class="fa fa-plus-square"></i>Add to wishlist</a>
+                                                </li>
+                                                <li>
+                                                    <a href=""><i class="fa fa-plus-square"></i>Add to compare</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <ul class="pagination">
+                            {% if products.has_previous %}
+                                <li>
+                                    <a href="?page=1">First</a>
+                                </li>
+                                <li>
+                                    <a href="?page={{ products.previous_page_number }}">«</a>
+                                </li>
+                            {% endif %}
+                            {% for num in paginator.page_range %}
+                                {% if products.number == num %}
+                                    <li>
+                                        <a class="active">{{ num }}</a>
+                                    </li>
+                                {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                                    <li>
+                                        <a href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if products.has_next %}
+                                <li>
+                                    <a href="?page={{ products.next_page_number }}">»</a>
+                                </li>
+                                <li>
+                                    <a href="?page={{ paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <!--features_items-->
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

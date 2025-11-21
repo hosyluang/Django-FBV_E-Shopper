@@ -2,8 +2,10 @@ import os
 from PIL import Image
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
 from .models import Category, Brand, Product
+from django.db.models import Q
+from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
@@ -307,3 +309,58 @@ def delete_cart(request):
             }
         )
     return JsonResponse({"status": "error"})
+
+
+def search_name(request):
+    # Lay tham so tu url
+    query = request.GET.get("q", "")
+    if query:
+        # name__icontains = WHERE name_product LIKE "%name%"
+        results = Product.objects.filter(name__icontains=query)
+    return render(request, "product/search.html", {"query": query, "results": results})
+
+
+def search_advanced(request):
+    categories = Category.objects.all()
+    brands = Brand.objects.all()
+    products = Product.objects.all().order_by("-id")
+
+    name_query = request.GET.get("name", "")
+    price_query = request.GET.get("price", "")
+    category_query = request.GET.get("category", "")
+    brand_query = request.GET.get("brand", "")
+    status_query = request.GET.get("status", "")
+
+    if name_query:
+        products = products.filter(name__icontains=name_query)
+    if category_query:
+        products = products.filter(category_id=category_query)
+    if brand_query:
+        products = products.filter(brand_id=brand_query)
+    if status_query:
+        if status_query == "1":  # SALE
+            products = products.filter(status=True)
+        elif status_query == "0":  # NEW
+            products = products.filter(status=False)
+    if price_query:
+        try:
+            min_price, max_price = price_query.split("-")
+            products = products.filter(price__range=(min_price, max_price))
+        except ValueError:
+            pass
+    # Phan trang
+    paginator = Paginator(products, 6)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {
+        "paginator": paginator,
+        "products": page_obj,
+        "categories": categories,
+        "brands": brands,
+        "search_name": name_query,
+        "search_price": price_query,
+        "search_category": int(category_query) if category_query else "",
+        "search_brand": int(brand_query) if brand_query else "",
+        "search_status": status_query,
+    }
+    return render(request, "product/shop.html", context)

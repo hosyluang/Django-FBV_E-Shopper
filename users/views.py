@@ -4,7 +4,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
-from .forms import RegisterForm
+from .forms import RegisterForm, AccountUpdateForm
 
 
 def register_view(request):
@@ -41,23 +41,16 @@ def custom_logout(request):
 
 @login_required
 def account(request):
-    user = request.user
     if request.method == "POST":
-        user.first_name = request.POST.get("first_name")
-        user.last_name = request.POST.get("last_name")
-        user.email = request.POST.get("email")
-        if "avatar" in request.FILES:
-            user.avatar = request.FILES["avatar"]
-        password = request.POST.get("password")
-        confirm_password = request.POST.get("confirm_password")
-        if password:
-            if password == confirm_password:
-                user.set_password(password)
-                update_session_auth_hash(request, user)  # giữ đăng nhập
-            else:
-                messages.error(request, "Cập nhật thất bại, mật khẩu không khớp")
-                return redirect("account")
-        user.save()
-        messages.success(request, "Cập nhật thành công!")
-        return redirect("account")
-    return render(request, "users/account.html", {"user": user})
+        form = AccountUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            user = form.save()
+            if form.cleaned_data.get("password"):
+                update_session_auth_hash(request, user)
+            messages.success(request, "Cap nhat thong tin thanh cong")
+            return redirect("account")
+        else:
+            messages.error(request, "Cap nhat that bai")
+    else:
+        form = AccountUpdateForm(instance=request.user)
+    return render(request, "users/account.html", {"form": form})
