@@ -27,6 +27,8 @@ def login_view(request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            if user.is_staff or user.is_superuser:
+                return redirect("login")
             login(request, user)
             return redirect("home")
     else:
