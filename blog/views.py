@@ -1,6 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from django_shop.decorators import non_superuser_required
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import BlogSerializer
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.utils import timezone
@@ -134,3 +138,45 @@ def blog_cmt(request):
         except Blog.DoesNotExist:
             return JsonResponse({"success": False, "error": "Blog not found"})
     return JsonResponse({"success": False, "error": "Invalid request"})
+
+
+# API
+@api_view(["GET"])
+def blog_api_list(request):
+    blogs = Blog.objects.all().order_by("id")
+    serializer = BlogSerializer(blogs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+def blog_api_create(request):
+    if request.method == "POST":
+        serializer = BlogSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+def blog_api_detail(request, pk):
+    blog = get_object_or_404(Blog, pk=pk)
+    serializer = BlogSerializer(blog)
+    return Response(serializer.data)
+
+
+@api_view(["PUT"])
+def blog_api_update(request, pk):
+    blog = get_object_or_404(Blog, pk=pk)
+    serializer = BlogSerializer(blog, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=400)
+
+
+@api_view(["DELETE"])
+def blog_api_delete(request, pk):
+    blog = get_object_or_404(Blog, pk=pk)
+    blog.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
