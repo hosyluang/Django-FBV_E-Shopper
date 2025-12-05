@@ -1,7 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from django_shop.decorators import non_superuser_required
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    authentication_classes,
+)
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import BlogSerializer
@@ -142,6 +148,8 @@ def blog_cmt(request):
 
 # API
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def blog_api_list(request):
     blogs = Blog.objects.all().order_by("id")
     serializer = BlogSerializer(blogs, many=True)

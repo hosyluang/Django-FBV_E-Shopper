@@ -17,4 +17,7 @@ urlpatterns = [
     path("search/", views.search_name, name="search_name"),
     path("shop/", views.search_advanced, name="search_advanced"),
     path("search-price/", views.search_price, name="search_price"),
+    # API
+    path("api/products/", views.product_api_list_create),
+    path("api/products/<int:pk>/", views.product_api_detail_update_delete),
 ]

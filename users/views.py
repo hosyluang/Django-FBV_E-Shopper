@@ -4,13 +4,14 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import login, logout, authenticate
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer, LoginSerializer
 from django.contrib import messages
 from .forms import RegisterForm, AccountUpdateForm
-from django.contrib.auth.forms import AuthenticationForm
 from .models import CustomUser
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+from .serializers import UserSerializer, LoginSerializer
+from django.contrib.auth.forms import AuthenticationForm
 
 
 def register_view(request):
@@ -74,37 +75,50 @@ def user_api_list(request):
 
 @api_view(["POST"])
 def user_api_register(request):
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        password = serializer.validated_data.pop("password")
-        user = serializer.save()
-        user.set_password(password)
-        user.is_active = True
-        user.save()
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    username = request.data.get("username")
+    password = request.data.get("password")
+    if CustomUser.objects.filter(username=username).exists():
+        return Response({"error": "Username already exists"}, status=400)
+    user = CustomUser.objects.create_user(username=username, password=password)
+    token, created = Token.objects.get_or_create(user=user)
+    return Response({"Token": token.key}, status=201)
+    # serializer = UserSerializer(data=request.data)
+    # if serializer.is_valid(raise_exception=True):
+    #     password = serializer.validated_data.pop("password")
+    #     user = serializer.save()
+    #     user.set_password(password)
+    #     user.is_active = True
+    #     user.save()
+    # return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
 def user_api_login(request):
-    serializer = LoginSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        username = serializer.validated_data["username"]
-        password = serializer.validated_data["password"]
-        user = authenticate(request, username=username, password=password)
+    username = request.data.get("username")
+    password = request.data.get("password")
+    user = authenticate(username=username, password=password)
+    if not user:
+        return Response({"error": "Invalid credentials"}, status=400)
+    token, created = Token.objects.get_or_create(user=user)
+    return Response({"Token": token.key})
+    # serializer = LoginSerializer(data=request.data)
+    # if serializer.is_valid(raise_exception=True):
+    #     username = serializer.validated_data["username"]
+    #     password = serializer.validated_data["password"]
+    #     user = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            login(request, user)  # neu dung thi login thanh cong va tao ss
-            return Response(
-                {"message": "Login thanh cong", "user_id": user.id},
-                status=status.HTTP_200_OK,
-            )
-        else:
-            return Response(
-                {"error": "Tai khoan hoac mat khau sai"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-    return Response()
+    #     if user is not None:
+    #         login(request, user)  # neu dung thi login thanh cong va tao ss
+    #         return Response(
+    #             {"message": "Login thanh cong", "user_id": user.id},
+    #             status=status.HTTP_200_OK,
+    #         )
+    #     else:
+    #         return Response(
+    #             {"error": "Tai khoan hoac mat khau sai"},
+    #             status=status.HTTP_400_BAD_REQUEST,
+    #         )
+    # return Response()
 
 
 @api_view(["PATCH"])

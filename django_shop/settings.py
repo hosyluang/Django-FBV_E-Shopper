@@ -163,6 +163,13 @@ EMAIL_HOST_USER = "khongtenss999@gmail.com"
 EMAIL_HOST_PASSWORD = "nxcc alet txnl ajkp"  # Phải dùng App Password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+# REST_FRAMEWORK
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+}
+
 # CKEDITOR
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_ALLOW_NONIMAGE_FILES = False

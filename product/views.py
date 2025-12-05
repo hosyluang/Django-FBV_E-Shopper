@@ -1,11 +1,15 @@
 import os
 from PIL import Image
-from django.conf import settings
 from django.http import JsonResponse
 from .models import Category, Brand, Product
 from django.core.paginator import Paginator
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import ProductSerializer
+from rest_framework.decorators import api_view
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 # Create your views here.
 
 
@@ -392,3 +396,34 @@ def search_price(request):
         )
 
     return JsonResponse({"data": data})
+
+
+# API
+@api_view(["GET", "POST"])
+def product_api_list_create(request):
+    if request.method == "GET":
+        product = Product.objects.all()
+        serializer = ProductSerializer(product, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    elif request.method == "POST":
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET", "PUT", "DELETE"])
+def product_api_detail_update_delete(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == "GET":
+        serializer = ProductSerializer(product)
+        return Response(serializer.data)
+    elif request.method == "PUT":
+        serializer = ProductSerializer(product, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    elif request.method == "DELETE":
+        product.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
